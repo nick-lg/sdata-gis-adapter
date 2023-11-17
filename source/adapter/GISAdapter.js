@@ -33,40 +33,33 @@ class GISAdapter {
                     return await this.#loadSupermapAsync();
                 default:
                     return await this.#loadSdataGISAsync();
-                // throw new Error(`invalid engine type:${engineType}`);
             }
         }
         else {
             this.#engineType = "sdata-gis"
             //----cesium
-            // loadStyles("http://10.15.111.14:33228/storage_area/preset/gis/libs/Cesium/Widgets/widgets.css");
-            // let result = await loadScriptAsync(`http://10.15.111.14:33228/storage_area/preset/gis/libs/Cesium/Cesium.js`);
+            const flag = await this.loadCesiumAsync();
+            if (!flag)
+                return;
 
-
-            loadStyles(`${window.location.origin}/storage_area/public/preset/gis/libs/Cesium/Widgets/widgets.css`);
-            let result = await loadScriptAsync(`${window.location.origin}/storage_area/public/preset/gis/libs/Cesium/Cesium.js`);
-            if (result.status === false) {
-                throw new Error(`load cesium failed:${result.info}`);
-            }
 
             import("sdata-gis/build/assets/style/sdata-gis.css")
             this.#delegate = await import("sdata-gis");
             window.__sdg_module = this.#delegate;
             return this.#delegate;
         }
-
-
     }
 
 
     async loadCesiumAsync() {
         if (!window.Cesium) {
-            loadStyles(`${window.location.origin}/storage_area/public/preset/gis/libs/Cesium/Widgets/widgets.css`);
-            let result = await loadScriptAsync(`${window.location.origin}/storage_area/public/preset/gis/libs/Cesium/Cesium.js`);
+            const cssUrl = `${window.prefixPath || ''}/static/cesium/Widgets/widgets.css`
+            loadStyles(cssUrl);
+            const jsUrl = `${window.prefixPath || ''}/static/cesium/Cesium.js`
+            let result = await loadScriptAsync(jsUrl);
             if (result.status === false) {
                 throw new Error(`load cesium failed:${result.info}`);
             }
-            console.log("Cesium loaded")
         }
         else {
             console.log(`Cesium already exists`)
@@ -79,22 +72,13 @@ class GISAdapter {
         this.#engineType = "sdata-gis"
 
         //----cesium
-        //--test
-        // loadStyles("http://10.15.111.14:33228/storage_area/preset/gis/libs/Cesium/Widgets/widgets.css");
-        // let result = await loadScriptAsync(`http://10.15.111.14:33228/storage_area/preset/gis/libs/Cesium/Cesium.js`);
-
-        // loadStyles(`${window.location.origin}/storage_area/public/preset/gis/libs/Cesium/Widgets/widgets.css`);
-        // let result = await loadScriptAsync(`${window.location.origin}/storage_area/public/preset/gis/libs/Cesium/Cesium.js`);
-        // if (result.status === false) {
-        //     throw new Error(`load cesium failed:${result.info}`);
-        // }
         const flag = await this.loadCesiumAsync();
         if (!flag)
             return;
 
         //----sdata-gis
         loadStyles(`${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/assets/style/sdata-gis.css`)
-        result = await loadScriptAsync(`${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/sdata-gis.js`);
+        let result = await loadScriptAsync(`${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/sdata-gis.js`);
         if (result.status === false) {
             throw new Error(`load cesium failed:${result.info}`);
         }
@@ -169,3 +153,36 @@ async function loadScriptAsync(url) {
     })
     return promise;
 }
+
+// function getStaticResourcePath(src = '', defaultPrefix = '') {
+//     if (
+//         src?.startsWith('http') ||
+//         src?.startsWith('https') ||
+//         src?.startsWith('data:image/') ||
+//         src?.startsWith('blob:')
+//     ) {
+//         return src;
+//     } else {
+//         let reg = /^\/.*/;
+//         let file = src ? (reg.test(src) ? src : `/${src}`) : '';
+//         const prefix = window?.configuration?.system_resource_access_prefix;
+//         if (file?.startsWith(prefix)) {
+//             return file ? defaultPrefix + file : '';
+//         }
+//         return file ? (prefix || defaultPrefix) + file : '';
+//     }
+// };
+
+
+export const routePrefix = window.prefixPath || '';
+
+export const apiPrefixPath =
+    window.apiPrefixPath === undefined ? routePrefix : window.apiPrefixPath;
+
+/**
+ * apiintl.get('EVEN.CPF')
+ */
+export const apiContextPath = `${origin}${apiPrefixPath}`;
+
+
+

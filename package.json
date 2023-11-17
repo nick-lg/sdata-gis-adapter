@@ -1,6 +1,6 @@
 {
   "name": "sdata-gis-adapter",
-  "version": "1.0.2",
+  "version": "1.0.6",
   "description": "GIS底座适配器",
   "main": "./build/sdata-gis-adapter.js",
   "module": "./build/sdata-gis-adapter.js",
@@ -61,11 +61,7 @@
     "standard-version": "^9.5.0"
   },
   "dependencies": {
-    "@nick-wilde/mvt-imagery-provider": "^1.0.1",
-    "dat.gui": "^0.7.9",
-    "fix-webm-duration": "^1.0.5",
     "load-script": "^2.0.0",
-    "react-svg": "^15.1.9",
     "sdata-gis": "^1.40.1"
   }
 }

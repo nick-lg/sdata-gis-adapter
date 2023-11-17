@@ -31,9 +31,8 @@ export default
             file: './build/sdata-gis-adapter.js',//打包的输出文件
             format: 'esm',
             indent: '\t',////用于表示缩进的字符
-            sourcemap: true,
+            sourcemap: false,
             banner: 'console.info(`sdata-gis-adapter@${new Date().getFullYear()}`)',
-            // inlineDynamicImports: true
         },
         watch: {
             //限定监控范围
