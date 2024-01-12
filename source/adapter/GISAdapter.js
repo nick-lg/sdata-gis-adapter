@@ -1,5 +1,3 @@
-// const load = require("load-script");
-
 import load from "load-script"
 
 class GISAdapter {
@@ -30,7 +28,9 @@ class GISAdapter {
         if (pluginInfo) {
             switch (pluginInfo.engineType) {
                 case "sdata-supermap":
-                    return await this.#loadSupermapAsync();
+                    return await this.#loadSdataGISSupermapAsync();
+                case "sdata-gis-njmap":
+                    return await this.#loadSdataGISNjmapAsync(pluginInfo);
                 default:
                     return await this.#loadSdataGISAsync();
             }
@@ -86,7 +86,7 @@ class GISAdapter {
         return this.#delegate;
     }
 
-    async #loadSupermapAsync() {
+    async #loadSdataGISSupermapAsync() {
         this.#engineType = "sdata-supermap"
 
         //----cesium
@@ -102,6 +102,46 @@ class GISAdapter {
         if (result.status === false) {
             throw new Error(`load cesium failed:${result.info}`);
         }
+        this.#delegate = window.__sdg_module;
+        return this.#delegate;
+    }
+
+    async #loadSdataGISNjmapAsync(pluginInfo) {
+        this.#engineType = "sdata-gis-njmap"
+        console.log("pluginInfo:", pluginInfo)
+        const token = pluginInfo.props.token;
+        console.log(token, token)
+
+        //css
+        const css = [
+            "http://mapservices.njghzy.com.cn:84/njapis/njmaps/mapbox/css/mapbox-gl.css",
+            `${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/assets/style/sdata-gis-njmap.css`
+        ];
+        css.forEach(p => loadStyles(p))
+
+        //js
+        const urls = [
+            "http://mapservices.njghzy.com.cn:84/njapis/njmaps/mapbox/js/mapbox-gl.js",
+            `http://mapservices.njghzy.com.cn:84/other/njapis/auth/GeoGlobe/GeoGlobeJS.min.js?njtoken=${token}`,
+            `${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/sdata-gis-njmap.js`,
+        ]
+
+        let result = await loadScriptAsync(urls[0]);
+        if (result.status === false) {
+            throw new Error(`load ${urls[0]} failed:${result.info}`);
+        }
+
+        result = await loadNJMapGeoJS(urls[1], token);
+        if (result.status === false) {
+            throw new Error(`load ${urls[1]} failed:${result.info}`);
+        }
+
+
+        result = await loadScriptAsync(urls[2]);
+        if (result.status === false) {
+            throw new Error(`load ${urls[2]} failed:${result.info}`);
+        }
+
         this.#delegate = window.__sdg_module;
         return this.#delegate;
     }
@@ -153,6 +193,42 @@ async function loadScriptAsync(url) {
     })
     return promise;
 }
+
+
+async function loadNJMapGeoJS(url, token) {
+    let codeText = await fetch(url).then(res => res.text());
+    codeText = codeText.replace('throw Error("njtoken is not define.");', `Object.defineProperty(GeoGlobe, "customToken", {
+        value: '${token}',
+        writable: !1
+    });`)
+
+
+
+    const scriptElement = document.createElement('script');
+    scriptElement.type = 'text/javascript';
+    scriptElement.innerHTML = codeText;
+    scriptElement.setAttribute("data-custom-flag", "njmap-geoglobejs")
+    document.head.appendChild(scriptElement);
+
+    return new Promise((resolve, reject) => {
+        const tickID = setInterval(() => {
+            const scriptTags = Array.from(document.querySelectorAll("head>script"));
+            const index = scriptTags.findIndex(p => p.getAttribute("data-custom-flag") == "njmap-geoglobejs");
+            if (index > -1) {
+                clearInterval(tickID);
+                resolve({ status: true, info: "" });
+            }
+        }, 500);
+
+    })
+}
+
+
+
+
+
+
+
 
 // function getStaticResourcePath(src = '', defaultPrefix = '') {
 //     if (
