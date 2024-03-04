@@ -1,6 +1,6 @@
 {
   "name": "sdata-gis-adapter",
-  "version": "2.0.3",
+  "version": "2.3.0",
   "description": "GIS底座适配器",
   "main": "./build/sdata-gis-adapter.js",
   "module": "./build/sdata-gis-adapter.js",
@@ -62,6 +62,6 @@
   },
   "dependencies": {
     "load-script": "^2.0.0",
-    "sdata-gis": "^1.40.1"
+    "sdata-gis": "1.42.0"
   }
 }
