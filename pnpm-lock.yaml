@@ -9,8 +9,8 @@ dependencies:
     specifier: ^2.0.0
     version: 2.0.0
   sdata-gis:
-    specifier: ^1.44.0
-    version: 1.44.0(react-dom@18.2.0)(react@18.2.0)
+    specifier: ^1.44.1
+    version: 1.44.1(react-dom@18.2.0)(react@18.2.0)
 
 devDependencies:
   '@babel/core':
@@ -4181,8 +4181,8 @@ packages:
       compute-scroll-into-view: 1.0.20
     dev: true
 
-  /sdata-gis@1.44.0(react-dom@18.2.0)(react@18.2.0):
-    resolution: {integrity: sha512-7TlnkktVhnNgNsg1skmOQriwzbNB+yMAUt9CzTnfUTce3knvlM2tYJaTZKmG2g9lhnDEls2EmWIatcgfrkRFbw==}
+  /sdata-gis@1.44.1(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-AwBN+/AgJOiwpi53n7dkctm4kM1IS2AtUko7tz+bgiGGneEwE1unqucptETXwldHY8a+SLB4KGdWFnjtIuHjAQ==}
     dependencies:
       '@nick-wilde/mvt-imagery-provider': 1.0.2
       dat.gui: 0.7.9
