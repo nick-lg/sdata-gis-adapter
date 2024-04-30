@@ -53,9 +53,9 @@ class GISAdapter {
 
     async loadCesiumAsync() {
         if (!window.Cesium) {
-            const cssUrl = `${window.prefixPath || ''}/static/cesium/Widgets/widgets.css`
+            const cssUrl = getUrlWithCdnOrPrefix('/static/cesium/Widgets/widgets.css')
             loadStyles(cssUrl);
-            const jsUrl = `${window.prefixPath || ''}/static/cesium/Cesium.js`
+            const jsUrl = getUrlWithCdnOrPrefix('/static/cesium/Cesium.js')
             let result = await loadScriptAsync(jsUrl);
             if (result.status === false) {
                 throw new Error(`load cesium failed:${result.info}`);
@@ -225,7 +225,14 @@ async function loadNJMapGeoJS(url, token) {
 
 
 
-
+function getUrlWithCdnOrPrefix(url) {
+    const prefix = window.prefixPathCdn || window.prefixPath || "";
+    if (!url) return url;
+    if (!prefix) return url;
+    if (url.startsWith("http")) return prefix + new URL(url).pathname;
+    if (url.startsWith("/")) return prefix + url;
+    return prefix + "/" + url;
+};
 
 
 
