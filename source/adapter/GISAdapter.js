@@ -31,6 +31,8 @@ class GISAdapter {
                     return await this.#loadSdataGISSupermapAsync();
                 case "sdata-gis-njmap":
                     return await this.#loadSdataGISNjmapAsync(pluginInfo);
+                case "sdata-gis-leaflet":
+                    return await this.#loadSdataGISLeafletAsync();
                 default:
                     return await this.#loadSdataGISAsync();
             }
@@ -80,7 +82,7 @@ class GISAdapter {
         loadStyles(`${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/assets/style/sdata-gis.css`)
         let result = await loadScriptAsync(`${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/sdata-gis.js`);
         if (result.status === false) {
-            throw new Error(`load cesium failed:${result.info}`);
+            throw new Error(`load gis sdk failed:${result.info}`);
         }
         this.#delegate = window.__sdg_module;
         return this.#delegate;
@@ -145,6 +147,22 @@ class GISAdapter {
         this.#delegate = window.__sdg_module;
         return this.#delegate;
     }
+
+    async #loadSdataGISLeafletAsync() {
+        this.#engineType = "sdata-gis-leaflet"
+
+        //----sdata-gis
+        loadStyles(`${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/assets/style/sdata-gis.css`)
+        let result = await loadScriptAsync(`${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/sdata-gis.js`);
+        if (result.status === false) {
+            throw new Error(`load gis sdk failed:${result.info}`);
+        }
+        this.#delegate = window.__sdg_module;
+        return this.#delegate;
+    }
+
+
+
 
     async #queryPluginInfoAsync() {
         try {
