@@ -1,9 +1,17 @@
 import load from "load-script"
-
+const getUrlWithCdnOrPrefix = (url) => {
+    const prefix = window.prefixPathCdn || window.prefixPath || "";
+    if (!url) return url;
+    if (!prefix) return url;
+    if (url.startsWith("http")) return prefix + new URL(url).pathname;
+    if (url.startsWith("/")) return prefix + url;
+    return prefix + "/" + url;
+};
 class GISAdapter {
     #engineType;
     #delegate
     #engineID = "fde7e957-8fd5-4f2b-8340-3b4300faaef9"
+    #routePrefix = "";
 
     get engineType() {
         return this.#engineType;
@@ -24,6 +32,9 @@ class GISAdapter {
 
 
     async initAsync() {
+        if (window?.appSdk?.routePrefix)
+            this.#routePrefix = `/${window.appSdk.routePrefix}`
+
         let pluginInfo = await this.#queryPluginInfoAsync();
         if (pluginInfo) {
             switch (pluginInfo.engineType) {
@@ -31,8 +42,6 @@ class GISAdapter {
                     return await this.#loadSdataGISSupermapAsync();
                 case "sdata-gis-njmap":
                     return await this.#loadSdataGISNjmapAsync(pluginInfo);
-                case "sdata-gis-leaflet":
-                    return await this.#loadSdataGISLeafletAsync();
                 default:
                     return await this.#loadSdataGISAsync();
             }
@@ -79,10 +88,10 @@ class GISAdapter {
             return;
 
         //----sdata-gis
-        loadStyles(`${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/assets/style/sdata-gis.css`)
-        let result = await loadScriptAsync(`${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/sdata-gis.js`);
+        loadStyles(`${window.location.origin}${this.#routePrefix}/storage_area/ext_plugins/web/${this.engineID}/assets/style/sdata-gis.css`)
+        let result = await loadScriptAsync(`${window.location.origin}${this.#routePrefix}/storage_area/ext_plugins/web/${this.engineID}/sdata-gis.js`);
         if (result.status === false) {
-            throw new Error(`load gis sdk failed:${result.info}`);
+            throw new Error(`load cesium failed:${result.info}`);
         }
         this.#delegate = window.__sdg_module;
         return this.#delegate;
@@ -92,15 +101,15 @@ class GISAdapter {
         this.#engineType = "sdata-supermap"
 
         //----cesium
-        loadStyles(`${window.location.origin}/storage_area/public/preset/gis/libs/supermap_for_cesium/Cesium/Widgets/widgets.css`);
-        let result = await loadScriptAsync(`${window.location.origin}/storage_area/public/preset/gis/libs/supermap_for_cesium/Cesium/Cesium.js`);
+        loadStyles(`${window.location.origin}${this.#routePrefix}/storage_area/public/preset/gis/libs/supermap_for_cesium/Cesium/Widgets/widgets.css`);
+        let result = await loadScriptAsync(`${window.location.origin}${this.#routePrefix}/storage_area/public/preset/gis/libs/supermap_for_cesium/Cesium/Cesium.js`);
         if (result.status === false) {
             throw new Error(`load cesium failed:${result.info}`);
         }
 
         //----sdata-supermap
-        loadStyles(`${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/assets/style/sdata-supermap.css`)
-        result = await loadScriptAsync(`${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/sdata-supermap.js`);
+        loadStyles(`${window.location.origin}${this.#routePrefix}/storage_area/ext_plugins/web/${this.engineID}/assets/style/sdata-supermap.css`)
+        result = await loadScriptAsync(`${window.location.origin}${this.#routePrefix}/storage_area/ext_plugins/web/${this.engineID}/sdata-supermap.js`);
         if (result.status === false) {
             throw new Error(`load cesium failed:${result.info}`);
         }
@@ -117,7 +126,7 @@ class GISAdapter {
         //css
         const css = [
             "http://mapservices.njghzy.com.cn:84/njapis/njmaps/mapbox/css/mapbox-gl.css",
-            `${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/assets/style/sdata-gis-njmap.css`
+            `${window.location.origin}${this.#routePrefix}/storage_area/ext_plugins/web/${this.engineID}/assets/style/sdata-gis-njmap.css`
         ];
         css.forEach(p => loadStyles(p))
 
@@ -125,7 +134,7 @@ class GISAdapter {
         const urls = [
             "http://mapservices.njghzy.com.cn:84/njapis/njmaps/mapbox/js/mapbox-gl.js",
             `http://mapservices.njghzy.com.cn:84/other/njapis/auth/GeoGlobe/GeoGlobeJS.min.js?njtoken=${token}`,
-            `${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/sdata-gis-njmap.js`,
+            `${window.location.origin}${this.#routePrefix}/storage_area/ext_plugins/web/${this.engineID}/sdata-gis-njmap.js`,
         ]
 
         let result = await loadScriptAsync(urls[0]);
@@ -148,25 +157,15 @@ class GISAdapter {
         return this.#delegate;
     }
 
-    async #loadSdataGISLeafletAsync() {
-        this.#engineType = "sdata-gis-leaflet"
-
-        //----sdata-gis
-        loadStyles(`${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/assets/style/sdata-gis.css`)
-        let result = await loadScriptAsync(`${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/sdata-gis.js`);
-        if (result.status === false) {
-            throw new Error(`load gis sdk failed:${result.info}`);
-        }
-        this.#delegate = window.__sdg_module;
-        return this.#delegate;
-    }
-
-
-
-
     async #queryPluginInfoAsync() {
         try {
-            const url = `${window.location.origin}/storage_area/ext_plugins/web/${this.engineID}/config.json`;
+
+            let prefix = "";
+            if (window?.appSdk?.routePrefix)
+                prefix = `/${window.appSdk.routePrefix}`
+
+
+            const url = `${window.location.origin}${this.#routePrefix}/storage_area/ext_plugins/web/${this.engineID}/config.json`;
             const response = await fetch(url);
             if (response.ok === false) {
                 throw new Error(`query plugin info failed. status:${response.status},statusText:${response.statusText}`)
@@ -243,14 +242,7 @@ async function loadNJMapGeoJS(url, token) {
 
 
 
-function getUrlWithCdnOrPrefix(url) {
-    const prefix = window.prefixPathCdn || window.prefixPath || "";
-    if (!url) return url;
-    if (!prefix) return url;
-    if (url.startsWith("http")) return prefix + new URL(url).pathname;
-    if (url.startsWith("/")) return prefix + url;
-    return prefix + "/" + url;
-};
+
 
 
 
