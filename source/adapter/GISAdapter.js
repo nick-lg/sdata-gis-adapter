@@ -125,15 +125,18 @@ class GISAdapter {
 
         //css
         const css = [
-            "http://mapservices.njghzy.com.cn:84/njapis/njmaps/mapbox/css/mapbox-gl.css",
+            // "http://mapservices.njghzy.com.cn:84/njapis/njmaps/mapbox/css/mapbox-gl.css",
+            "https://home.njitrip.com:18080/njapis/njmaps/mapbox/css/mapbox-gl.css",
             `${window.location.origin}${this.#routePrefix}/storage_area/ext_plugins/web/${this.engineID}/assets/style/sdata-gis-njmap.css`
         ];
         css.forEach(p => loadStyles(p))
 
         //js
         const urls = [
-            "http://mapservices.njghzy.com.cn:84/njapis/njmaps/mapbox/js/mapbox-gl.js",
-            `http://mapservices.njghzy.com.cn:84/other/njapis/auth/GeoGlobe/GeoGlobeJS.min.js?njtoken=${token}`,
+            // "http://mapservices.njghzy.com.cn:84/njapis/njmaps/mapbox/js/mapbox-gl.js",
+            "https://home.njitrip.com:18080/njapis/njmaps/mapbox/js/mapbox-gl.js",
+            // `http://mapservices.njghzy.com.cn:84/other/njapis/auth/GeoGlobe/GeoGlobeJS.min.js?njtoken=${token}`,
+            `https://home.njitrip.com:18080/other/njapis/auth/GeoGlobe/GeoGlobeJS.min.js?njtoken=${token}`,
             `${window.location.origin}${this.#routePrefix}/storage_area/ext_plugins/web/${this.engineID}/sdata-gis-njmap.js`,
         ]
 

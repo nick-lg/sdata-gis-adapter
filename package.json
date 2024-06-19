@@ -1,6 +1,6 @@
 {
   "name": "sdata-gis-adapter",
-  "version": "2.7.0",
+  "version": "2.7.1",
   "description": "GIS底座适配器",
   "main": "./build/sdata-gis-adapter.js",
   "module": "./build/sdata-gis-adapter.js",
